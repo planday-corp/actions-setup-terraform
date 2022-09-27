@@ -18,5 +18,5 @@ Use this workflow in your pipeline:
 
 ```yaml
 - name: Setup Terraform from the 'required_version'
-  uses: planday-corp/actions-setup-terraform/.github/workflows/setup-terraform.yml@v1
+  uses: planday-corp/actions-setup-terraform@v1
 ```

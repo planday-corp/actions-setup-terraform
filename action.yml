@@ -4,7 +4,7 @@ description: "Setup Terraform using the 'required_version' setting from the 'ter
 outputs:
   terraform_version: 
     description: "Terraform version from the 'required_version' setting"
-    value: ${{steps.version.outputs.stdout}}
+    value: ${{steps.version.outputs.version}}
 
 runs:
   using: "composite"
@@ -32,9 +32,9 @@ runs:
         version="latest"
       fi
 
-      echo "$version"
+      echo "::set-output name=version::$version"
 
   - name: Setup Terraform
     uses: hashicorp/setup-terraform@v1
     with:
-      terraform_version: ${{steps.version.outputs.stdout}}
+      terraform_version: ${{steps.version.outputs.version}}

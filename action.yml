@@ -1,0 +1,40 @@
+name: "Setup Terraform"
+description: "Setup Terraform using the 'required_version' setting from the 'terraform' block if set"
+
+outputs:
+  terraform_version: 
+    description: "Terraform version from the 'required_version' setting"
+    value: ${{steps.version.outputs.stdout}}
+
+runs:
+  using: "composite"
+  steps:
+  - uses: actions/checkout@v3
+
+  - name: Install hcl2json
+    shell: bash
+    run: |
+      wget https://github.com/tmccombs/hcl2json/releases/download/v0.3.4/hcl2json_linux_amd64 -O /usr/local/bin/hcl2json
+      chmod a+x /usr/local/bin/hcl2json
+  
+  - name: Retrieve terraform version
+    shell: bash
+    id: version
+    run: |
+      # In case tf files don't have a terminating newline,
+      # hc2json will complain about 'Missing newline after block definition; A block definition must end with a newline'
+      # This for loop simply add a newline between all concatenated files
+      version="$(for f in *.tf; do (cat "${f}"; echo); done | hcl2json | jq -r -c -M '.terraform[0].required_version')"
+
+      # When 'required_version' is not set, $version will be 'null'
+      # which means we want the latest terraform version
+      if [ "$version" = "null" ]; then
+        version="latest"
+      fi
+
+      echo "$version"
+
+  - name: Setup Terraform
+    uses: hashicorp/setup-terraform@v1
+    with:
+      terraform_version: ${{steps.version.outputs.stdout}}

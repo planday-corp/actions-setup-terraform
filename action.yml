@@ -1,6 +1,12 @@
 name: "Setup Terraform"
 description: "Setup Terraform using the 'required_version' setting from the 'terraform' block if set"
 
+inputs:
+  terraform_wrapper:
+    description: "Whether to install a wrapper to wrap subsequent calls of the terraform binary and expose its STDOUT, STDERR, and exit code as outputs named stdout, stderr, and exitcode respectively. Defaults to false"
+    default: "false"
+    required: false
+
 outputs:
   terraform_version: 
     description: "Terraform version from the 'required_version' setting"
@@ -14,7 +20,7 @@ runs:
   - name: Install hcl2json
     shell: bash
     run: |
-      wget https://github.com/tmccombs/hcl2json/releases/download/v0.3.4/hcl2json_linux_amd64 -O /usr/local/bin/hcl2json
+      wget -q https://github.com/tmccombs/hcl2json/releases/download/v0.3.4/hcl2json_linux_amd64 -O /usr/local/bin/hcl2json
       chmod a+x /usr/local/bin/hcl2json
   
   - name: Retrieve terraform version
@@ -38,3 +44,4 @@ runs:
     uses: hashicorp/setup-terraform@v2
     with:
       terraform_version: ${{steps.version.outputs.version}}
+      terraform_wrapper: ${{inputs.terraform_wrapper}}
